@@ -14,29 +14,48 @@ module.exports = function(app){
 
 app.post("/api/friends", function(req,res){
     var userInput = req.body;
-    var userResponses = userInput.scores;
+
+    userInput.scores.forEach(user =>{
+        user.scores = parseInt(user.scores);
+    })
+
+    // var userResponses = userInput.scores;
 
 //    Compute best friend match
 
-var matchName = " ";
-var matchImage ="";
-var totalDifference = 5000;
+var compare = [];
+// var matchName = "";
+// var matchImage ="";
+
 
 // All existing friends in the list
 
 for( var i =0; i<dataForFriends.length; i++){
-
+ var friendCompared = dataForFriends[i];
+ var totalDifference = 0;
     // compute differences for each question
-    var diff = 0;
-    for(var j = 0; j < userResponses.length; j++){
-        diff += Math.abs(dataForFriends[i].scores[j] - userResponses[j]);
-    }
+    // var diff = 0;
+    for(var j = 0; j < friendCompared.scores.length; j++){
+    var differenceScore1= Math.abs(friendCompared.scores[j] - userInput.scores[j]);
+   totalDifference += differenceScore1;
+}
+ compare[i] = totalDifference;
 
     // if lowest difference, record the friend match
-    if(diff < totalDifference){
-        totalDifference = diff;
-        matchImage = dataForFriends[i].photo;
-        matchName = dataForFriends[i].name;
+    // if(diff < totalDifference){
+    //     totalDifference = diff;
+    //     matchImage = dataForFriends[i].photo;
+    //     matchName = dataForFriends[i].name;
+    // }
+}
+
+var matchFriendNum = compare[0];
+var friendMatch = 0;
+
+for(var i =1; i<compare.length; i++){
+    if(compare[i] < matchFriendNum){
+        matchFriendNum = compare[i];
+        friendMatch = i;
     }
 }
 
@@ -44,7 +63,7 @@ for( var i =0; i<dataForFriends.length; i++){
     dataForFriends.push(userInput);
 
     // Send data back to the client side 
-    res.send(dataForFriends[i]);
+    res.send(dataForFriends[friendMatch]);
 })
 
 }
